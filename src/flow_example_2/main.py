@@ -27,10 +27,9 @@ class PoemFlow(Flow[PoemState]):
         return poem
 
     @listen(review_poem)
-    def fail_after_human_feedback(self, poem: str) -> str:
-        raise RuntimeError(
-            "intentional post-HITL failure for paused-flow status regression"
-        )
+    def after_human_feedback(self, poem: str) -> str:
+        print("POEM AFTER HUMAN FEEDBACK", poem)
+        return poem
 
 
 def kickoff():
