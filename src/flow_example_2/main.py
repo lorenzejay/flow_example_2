@@ -1,47 +1,43 @@
 #!/usr/bin/env python
-from random import randint
-
 from pydantic import BaseModel
 
 from crewai.flow import Flow, listen, start
-
-from flow_example_2.crews.poem_crew.poem_crew import PoemCrew
+from crewai.flow.human_feedback import human_feedback
 
 
 class PoemState(BaseModel):
     sentence_count: int = 1
     poem: str = ""
+    approved: bool = False
 
 
 class PoemFlow(Flow[PoemState]):
+    name = "poem_flow_hitl_failure_repro"
 
     @start()
-    def generate_sentence_count(self):
-        print("Generating sentence count")
-        self.state.sentence_count = randint(1, 5)
+    def generate_sentence_count(self) -> str:
+        self.state.sentence_count = 2
+        self.state.poem = "roses are red\nviolets are blue"
+        return self.state.poem
 
     @listen(generate_sentence_count)
-    def generate_poem(self):
-        print("Generating poem")
-        result = (
-            PoemCrew()
-            .crew()
-            .kickoff(inputs={"sentence_count": self.state.sentence_count})
+    @human_feedback(message="Review this poem before the failure step:")
+    def review_poem(self, poem: str) -> str:
+        self.state.approved = True
+        return poem
+
+    @listen(review_poem)
+    def fail_after_human_feedback(self, poem: str) -> str:
+        raise RuntimeError(
+            "intentional post-HITL failure for paused-flow status regression"
         )
-
-        print("Poem generated", result.raw)
-        self.state.poem = result.raw
-
-    @listen(generate_poem)
-    def save_poem(self):
-        print("Saving poem")
-        with open("poem.txt", "w") as f:
-            f.write(self.state.poem)
 
 
 def kickoff():
-    poem_flow = PoemFlow()
-    poem_flow.kickoff()
+    poem_flow = PoemFlow(tracing=True)
+    res = poem_flow.kickoff(inputs={"sentence_count": 2})
+    print("POEM FLOW RESULT", res)
+    return res
 
 
 def plot():

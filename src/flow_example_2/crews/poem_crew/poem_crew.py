@@ -2,10 +2,19 @@ from crewai import Agent, Crew, Process, Task
 from crewai.project import CrewBase, agent, crew, task
 from crewai.agents.agent_builder.base_agent import BaseAgent
 from typing import List
+import os
+
+print("FIRECRAWL_API_KEY: ", os.getenv("FIRECRAWL_API_KEY"))
 
 # If you want to run a snippet of code before or after the crew starts,
 # you can use the @before_kickoff and @after_kickoff decorators
 # https://docs.crewai.com/concepts/crews#example-crew-class-with-decorators
+# from crewai.mcp.config import MCPServerHTTP
+
+# firecrawl_server = MCPServerHTTP(
+#     url=f"https://mcp.firecrawl.dev/{os.getenv('FIRECRAWL_API_KEY')}/v2/mcp",
+# )
+# print("firecrawl_server: ", firecrawl_server)
 
 
 @CrewBase
@@ -27,6 +36,7 @@ class PoemCrew:
     def poem_writer(self) -> Agent:
         return Agent(
             config=self.agents_config["poem_writer"],  # type: ignore[index]
+            # mcps=[firecrawl_server],
         )
 
     # To learn more about structured task outputs,
@@ -45,6 +55,7 @@ class PoemCrew:
         # https://docs.crewai.com/concepts/knowledge#what-is-knowledge
 
         return Crew(
+            name="poem_crew",
             agents=self.agents,  # Automatically created by the @agent decorator
             tasks=self.tasks,  # Automatically created by the @task decorator
             process=Process.sequential,

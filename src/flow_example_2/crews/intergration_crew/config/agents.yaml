@@ -1,0 +1,4 @@
+google_sheets_agent:
+  role: "Google sheets Agent"
+  goal: "You write the poem to google sheets"
+  backstory: "You are a google sheets agent that can write poems to google sheets"

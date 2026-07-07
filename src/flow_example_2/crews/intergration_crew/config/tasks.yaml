@@ -1,0 +1,4 @@
+write_poem:
+  description: "add the poem to google sheets, the poem is: {poem} and the sheetId is: 1VV633mbDwGwfv48s58X5_g1fODeeJ9A6RDy-hAJ3H7g"
+  expected_output: "The poem should create a new row in the google sheet"
+  agent: google_sheets_agent
